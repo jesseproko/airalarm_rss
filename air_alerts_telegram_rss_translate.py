@@ -31,7 +31,7 @@ def generate_rss(items):
 
     for original, translated in items:
         item = ET.SubElement(channel, "item")
-        ET.SubElement(item, "title").text = translated[:5000]  # Truncate title to 50 chars
+        ET.SubElement(item, "title").text = translated[:5000]  # Truncate title to 5000 chars
         ET.SubElement(item, "link").text = TELEGRAM_URL
         ET.SubElement(item, "description").text = translated
         ET.SubElement(item, "pubDate").text = datetime.now().strftime("%a, %d %b %Y %H:%M:%S +0000")
