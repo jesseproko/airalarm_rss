@@ -32,7 +32,7 @@ jobs:
 
       # Step 5: Upload RSS Feed as an artifact
       - name: Upload RSS Feed
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: translated_feed
           path: air_alerts_telegram_feed.xml
