@@ -37,7 +37,7 @@ def generate_rss(items):
         ET.SubElement(item, "pubDate").text = datetime.now().strftime("%a, %d %b %Y %H:%M:%S +0000")
 
     tree = ET.ElementTree(rss)
-    tree.write("translated_feed.xml", encoding="utf-8", xml_declaration=True)
+    tree.write("air_alerts_telegram_feed.xml", encoding="utf-8", xml_declaration=True)
 
 # Run the scraping and RSS generation
 items = scrape_telegram()
