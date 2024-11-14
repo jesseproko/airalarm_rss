@@ -42,3 +42,11 @@ def generate_rss(items):
 # Run the scraping and RSS generation
 items = scrape_telegram()
 generate_rss(items)
+
+# Run the scraping and RSS generation
+items = scrape_telegram()
+generate_rss(items)
+
+# Verify file creation
+import os
+print("File exists:", os.path.exists("air_alerts_telegram_feed.xml"))
