@@ -1,0 +1,38 @@
+name: Telegram RSS Scraper
+
+# Run every 15 minutes
+on:
+  schedule:
+    - cron: '*/15 * * * *'  # Every 15 minutes
+  workflow_dispatch:  # Allows manual triggering
+
+jobs:
+  scrape_and_generate_rss:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: |
+          pip install requests beautifulsoup4 deep-translator
+
+      # Step 4: Run the scraper script
+      - name: Run Telegram scraper
+        run: python air_alerts_telegram_rss_translate.py
+
+      # Step 5: Upload RSS Feed as an artifact
+      - name: Upload RSS Feed
+        uses: actions/upload-artifact@v2
+        with:
+          name: translated_feed
+          path: air_alerts_telegram_feed.xml
