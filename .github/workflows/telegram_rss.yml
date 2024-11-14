@@ -30,9 +30,20 @@ jobs:
       - name: Run Telegram scraper
         run: python air_alerts_telegram_rss_translate.py
 
-      # Step 5: Upload RSS Feed as an artifact
-      - name: Upload RSS Feed
-        uses: actions/upload-artifact@v3
-        with:
-          name: translated_feed
-          path: air_alerts_telegram_feed.xml
+      # Step 5: Move RSS Feed to docs directory
+      - name: Move RSS Feed to docs
+        run: |
+          mkdir -p docs
+          mv air_alerts_telegram_feed.xml docs/
+
+      # Step 6: Commit and push changes
+      - name: Commit and push if there's a change
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add docs/air_alerts_telegram_feed.xml
+          git commit -m "Update RSS feed" || echo "No changes to commit"
+          git push
+        env:
+          # Use GITHUB_TOKEN to push changes
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
