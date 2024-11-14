@@ -1,6 +1,5 @@
 name: Telegram RSS Scraper
 
-# Run every 15 minutes
 on:
   schedule:
     - cron: '*/15 * * * *'  # Every 15 minutes
@@ -11,32 +10,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out the repository
       - name: Check out repository
         uses: actions/checkout@v3
 
-      # Step 2: Set up Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
 
-      # Step 3: Install dependencies
       - name: Install dependencies
         run: |
           pip install requests beautifulsoup4 deep-translator
 
-      # Step 4: Run the scraper script
       - name: Run Telegram scraper
         run: python air_alerts_telegram_rss_translate.py
 
-      # Step 5: Move RSS Feed to docs directory
+      # Debugging step: List files in the directory to verify if the XML file was created
+      - name: List files after running script
+        run: ls -la
+
       - name: Move RSS Feed to docs
         run: |
           mkdir -p docs
           mv air_alerts_telegram_feed.xml docs/
 
-      # Step 6: Commit and push changes
       - name: Commit and push if there's a change
         run: |
           git config --global user.name "GitHub Actions"
