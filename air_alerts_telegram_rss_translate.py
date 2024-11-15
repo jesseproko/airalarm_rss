@@ -7,46 +7,42 @@ from datetime import datetime
 # Telegram channel URL
 TELEGRAM_URL = "https://t.me/s/air_alert_ua"
 
-def scrape_telegram():
-    response = requests.get(TELEGRAM_URL)
-    soup = BeautifulSoup(response.text, "html.parser")
-    posts = soup.find_all("div", class_="tgme_widget_message_text")
-    posts = list(reversed(posts))  # Reverse the order to ensure newest messages are processed first
+# Scrape the elements from the page    
+response = requests.get(TELEGRAM_URL)
+soup = BeautifulSoup(response.text, "html.parser")
 
-    items = []
-    for post in posts[:20]:  # Limit to the latest 20 messages
-        original_text = post.get_text()
-        translated_text = GoogleTranslator(source='uk', target='en').translate(original_text)
-        items.append((original_text, translated_text))
+# Extract relevant elements and limit to 20
+posts = [post.get_text() for post in reversed(soup.find_all("div", class_="tgme_widget_message_text"))][:20]
+links = [link.get("href") for link in reversed(soup.find_all("a", class_="tgme_widget_message_date"))][:20]
+times = [time.get("datetime") for time in reversed(soup.find_all("time", class_="time"))][:20]
 
-    return items
+# Translate the posts
+translated_items = [
+    GoogleTranslator(source='uk', target='en').translate(post) for post in posts
+]
 
-def generate_rss(items):
-    rss = ET.Element("rss")
-    rss.set("version", "2.0")
-    channel = ET.SubElement(rss, "channel")
-    ET.SubElement(channel, "title").text = "Translated Air Alert UA"
-    ET.SubElement(channel, "link").text = TELEGRAM_URL
-    ET.SubElement(channel, "description").text = "Translated Alerts from Air Alert UA"
+# Generate RSS feed
+rss = ET.Element("rss")
+rss.set("version", "2.0")
+channel = ET.SubElement(rss, "channel")
+ET.SubElement(channel, "title").text = "Translated Air Alert UA"
+ET.SubElement(channel, "link").text = TELEGRAM_URL
+ET.SubElement(channel, "description").text = "Translated Alerts from Air Alert UA"
 
-    for original, translated in items:
-        item = ET.SubElement(channel, "item")
-        ET.SubElement(item, "title").text = translated.split('#')[0].strip()
-        ET.SubElement(item, "link").text = TELEGRAM_URL
-        ET.SubElement(item, "description").text = translated + ' This is a warning from the official Ukranian Air Monitoring System, and may indicate a potential or immiment air-based attack or other threat.'
-        ET.SubElement(item, "pubDate").text = datetime.now().strftime("%a, %d %b %Y %H:%M:%S +0000")
+for translated, link, time in zip(translated_items, links, times):
+    item = ET.SubElement(channel, "item")
+    ET.SubElement(item, "title").text = translated.split('#')[0].strip()
+    ET.SubElement(item, "link").text = link
+    ET.SubElement(item, "description").text = (
+        translated +
+        ' This is a warning from the official Ukrainian Air Monitoring System and may indicate a potential or imminent air-based attack or other threat.'
+    )
+    # Parse the ISO 8601 datetime string
+    dt = datetime.fromisoformat(time)
+    # Format it for RSS (RFC 822/1123)
+    rss_datetime = dt.strftime("%a, %d %b %Y %H:%M:%S +0000")
+    ET.SubElement(item, "pubDate").text = rss_datetime
 
-    tree = ET.ElementTree(rss)
-    tree.write("air_alerts_telegram_feed.xml", encoding="utf-8", xml_declaration=True)
-
-# Run the scraping and RSS generation
-items = scrape_telegram()
-generate_rss(items)
-
-# Run the scraping and RSS generation
-items = scrape_telegram()
-generate_rss(items)
-
-# Verify file creation
-import os
-print("File exists:", os.path.exists("air_alerts_telegram_feed.xml"))
+# Save RSS feed to file
+tree = ET.ElementTree(rss)
+tree.write("air_alerts_telegram_feed.xml", encoding="utf-8", xml_declaration=True)
