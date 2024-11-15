@@ -33,7 +33,7 @@ def generate_rss(items):
         item = ET.SubElement(channel, "item")
         ET.SubElement(item, "title").text = translated.split('#')[0].strip()
         ET.SubElement(item, "link").text = TELEGRAM_URL
-        ET.SubElement(item, "description").text = translated
+        ET.SubElement(item, "description").text = translated + ' This is a warning from the official Ukranian Air Monitoring System, and may indicate a potential or immiment air-based attack or other threat.'
         ET.SubElement(item, "pubDate").text = datetime.now().strftime("%a, %d %b %Y %H:%M:%S +0000")
 
     tree = ET.ElementTree(rss)
@@ -46,3 +46,7 @@ generate_rss(items)
 # Run the scraping and RSS generation
 items = scrape_telegram()
 generate_rss(items)
+
+# Verify file creation
+import os
+print("File exists:", os.path.exists("air_alerts_telegram_feed.xml"))
