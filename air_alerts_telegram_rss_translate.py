@@ -35,7 +35,7 @@ for translated, link, time in zip(translated_items, links, times):
     ET.SubElement(item, "link").text = link
     ET.SubElement(item, "description").text = (
         translated +
-        ' This is a warning from the official Ukrainian Air Monitoring System and may indicate a potential or imminent air-based attack or other threat.'
+        ' This is a warning from the official Ukrainian Air Monitoring System and may indicate a potential or imminent airstrike or other threat.'
     )
     # Parse the ISO 8601 datetime string
     dt = datetime.fromisoformat(time)
